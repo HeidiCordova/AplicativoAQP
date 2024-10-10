@@ -50,26 +50,24 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                if(menuItem.getItemId()== R.id.menu_home){
-                    homeFragment=HomeFragment.newInstance("","");
+                if(menuItem.getItemId() == R.id.menu_home){
+                    homeFragment = new HomeFragment();  // Ya no necesitas newInstance
                     loadFragment(homeFragment);
                     return true;
-                }else if (menuItem.getItemId()==R.id.menu_cuadros){
-                    listaFragments = ListaFragments.newInstance("","");
+                } else if (menuItem.getItemId() == R.id.menu_cuadros){
+                    listaFragments = new ListaFragments();  // Cambiado por un constructor vacío
                     loadFragment(listaFragments);
                     return true;
-                }
-                else if (menuItem.getItemId()==R.id.menu_mapa){
-                    mapaFragment =MapaFragment.newInstance("","");
+                } else if (menuItem.getItemId() == R.id.menu_mapa){
+                    mapaFragment = new MapaFragment();  // Ya no necesitas newInstance
                     loadFragment(mapaFragment);
                     return true;
-                }
-                else{
+                } else {
                     return false;
                 }
-
             }
         });
+
     }
     //METODO para cargar los fragmentos
     private void loadFragment(Fragment fragment){
