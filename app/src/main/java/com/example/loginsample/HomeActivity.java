@@ -54,7 +54,7 @@ public class HomeActivity extends AppCompatActivity {
                     homeFragment = new HomeFragment();  // Ya no necesitas newInstance
                     loadFragment(homeFragment);
                     return true;
-                } else if (menuItem.getItemId() == R.id.menu_cuadros){
+                } else if (menuItem.getItemId() == R.id.menu_edificio){
                     listaFragments = new ListaFragments();  // Cambiado por un constructor vacío
                     loadFragment(listaFragments);
                     return true;
