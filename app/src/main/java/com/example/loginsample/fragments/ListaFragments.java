@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,7 +53,7 @@ public class ListaFragments extends Fragment {
 
         // Configuración del RecyclerView
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         // Inicialización de listas
         buildingList = new ArrayList<>();
@@ -60,9 +61,15 @@ public class ListaFragments extends Fragment {
 
         // Agregar edificaciones
         buildingList.add(new Building("Catedral", "Santuario principal de la ciudad ocupando el lado norte de la Plaza de Armas", R.drawable.catedral));
-        buildingList.add(new Building("Mansión del Fundador", "La Mansión del Fundador es una histórica casona colonial de Arequipa, conocida por su arquitectura de sillar y su rica herencia cultural y artística.", R.drawable.ingreso));
+        buildingList.add(new Building("Mansión del Fundador", "Histórica casona colonial de Arequipa, conocida por su arquitectura de sillar y rica herencia cultural y artística.", R.drawable.ingreso));
         buildingList.add(new Building("Monasterio de Santa Catalina", "Una pequeña ciudadela que ocupa un área de 20 mil metros cuadrados", R.drawable.monasterio));
-        buildingList.add(new Building("Molino de Sabandía", "Una construcción colonial donde se molían trigo y maíz", R.drawable.molino));
+        buildingList.add(new Building("Molino de Sabandía", "Construcción colonial donde se molían trigo y maíz", R.drawable.molino));
+        buildingList.add(new Building("Mirador de Yanahuara", "Ofrece una vista panorámica de Arequipa y sus volcanes, rodeado de arcos de sillar con inscripciones poéticas.", R.drawable.yanahuara));
+        buildingList.add(new Building("Plaza de Armas", "Centro histórico de la ciudad rodeado de impresionantes edificios coloniales y la catedral.", R.drawable.plaza_armas));
+        buildingList.add(new Building("Museo Santuarios Andinos", "Hogar de la momia Juanita, una momia Inca congelada encontrada en el volcán Ampato.", R.drawable.santuarios_andinos));
+        buildingList.add(new Building("Iglesia de la Compañía", "Templo jesuita del siglo XVII, con una impresionante fachada barroca tallada en sillar.", R.drawable.compania));
+        buildingList.add(new Building("Cañón del Colca", "Uno de los cañones más profundos del mundo, famoso por sus vistas y observación de cóndores.", R.drawable.colca));
+        buildingList.add(new Building("Baños Termales de Yura", "Aguas termales naturales conocidas por sus propiedades terapéuticas y relajantes.", R.drawable.banos_yura));
 
         // Crear una copia de buildingList para mantener los datos originales
         filteredBuildingList.addAll(buildingList);
