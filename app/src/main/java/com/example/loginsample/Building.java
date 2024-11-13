@@ -22,4 +22,7 @@ public class Building {
     public int getImageResId() {
         return imageResId;
     }
+
+
+
 }

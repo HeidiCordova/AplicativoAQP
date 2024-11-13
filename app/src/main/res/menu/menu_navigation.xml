@@ -5,7 +5,7 @@
         android:id="@+id/menu_home"
         android:icon="@drawable/baseline_home_24"
         />
-    <item android:title="Edificios"
+    <item android:title="Edificaciones"
         android:id="@+id/menu_edificio"
         android:icon="@drawable/baseline_business_24"
         />

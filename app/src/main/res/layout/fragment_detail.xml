@@ -23,7 +23,7 @@
         android:id="@+id/btn_view_mansion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ver Mansión"
+        android:text="Ver Aquí"
         android:layout_marginTop="16dp" />
     <TextView
         android:id="@+id/description_text_view"

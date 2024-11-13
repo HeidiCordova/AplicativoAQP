@@ -35,6 +35,7 @@ public class ListaFragments extends Fragment {
     private List<Building> buildingList;
     private List<Building> filteredBuildingList;
     private EditText searchBar;
+    private Building selectedBuilding;
 
     public static ListaFragments newInstance(String param1, String param2) {
         ListaFragments fragment = new ListaFragments();
@@ -83,7 +84,12 @@ public class ListaFragments extends Fragment {
                 Building selectedBuilding = filteredBuildingList.get(position);
                 int buildingId = buildingList.indexOf(selectedBuilding);
 
-                DetailFragment detailFragment = DetailFragment.newInstance(buildingId);
+                DetailFragment detailFragment = DetailFragment.newInstance(
+                        selectedBuilding.getTitle(),
+                        selectedBuilding.getDescription(),
+                        selectedBuilding.getImageResId()
+                );
+
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
 
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

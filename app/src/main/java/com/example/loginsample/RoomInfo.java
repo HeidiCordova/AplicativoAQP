@@ -22,4 +22,5 @@ public class RoomInfo {
     public int getImageUrl() {
         return imageUrl;
     }
+
 }

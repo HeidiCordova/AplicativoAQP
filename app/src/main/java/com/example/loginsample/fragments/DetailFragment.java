@@ -30,12 +30,16 @@ public class DetailFragment extends Fragment {
     private CommentAdapter commentAdapter;
     private List<Comment> commentList;
     private Button btnView360;
-
+    private String title;
+    private String description;
+    private int imageResId;
     private Button btnViewMansion;
-    public static DetailFragment newInstance(int buildingId) {
+    public static DetailFragment newInstance(String title, String description, int imageResId) {
         DetailFragment fragment = new DetailFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_BUILDING_ID, buildingId);
+        args.putString("title", title);
+        args.putString("description", description);
+        args.putInt("imageResId", imageResId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,32 +49,24 @@ public class DetailFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        ImageView imageView = view.findViewById(R.id.image_view);
         TextView titleTextView = view.findViewById(R.id.title_text_view);
         TextView descriptionTextView = view.findViewById(R.id.description_text_view);
-        btnViewMansion = view.findViewById(R.id.btn_view_mansion);
-        commentsRecyclerView = view.findViewById(R.id.comments_recycler_view);
-        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        commentList = new ArrayList<>();
-        commentAdapter = new CommentAdapter(commentList);
-        commentsRecyclerView.setAdapter(commentAdapter);
+        ImageView imageView = view.findViewById(R.id.image_view);
+        Button btnViewMansion = view.findViewById(R.id.btn_view_mansion);
 
+        titleTextView.setText(title);
+        descriptionTextView.setText(description);
+        imageView.setImageResource(imageResId);
 
-        loadBuildingData(buildingId, imageView, titleTextView, descriptionTextView);
-        commentList.add(new Comment("Diego Almazán", "Más que un monasterio es una ciudad dentro de la propia ciudad", 5));
-        commentList.add(new Comment("Louis Toh", "Hay mucho que ver, aunque algunas cosas pueden resultar un poco repetitivas después de un tiempo.", 4));
-
-
-        btnViewMansion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MansionFragment mansionFragment = new MansionFragment();
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView, mansionFragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
+        // Añadir listener para redirigir al MansionFragment
+        btnViewMansion.setOnClickListener(v -> {
+            MansionFragment mansionFragment = new MansionFragment();
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView, mansionFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
+
         return view;
     }
 
@@ -102,7 +98,9 @@ public class DetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            buildingId = getArguments().getInt(ARG_BUILDING_ID);
+            title = getArguments().getString("title");
+            description = getArguments().getString("description");
+            imageResId = getArguments().getInt("imageResId");
         }
     }
 
