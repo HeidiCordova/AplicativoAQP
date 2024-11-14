@@ -1,5 +1,6 @@
 package com.example.loginsample.fragments;
 
+import java.util.ArrayList;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
+
+import com.example.loginsample.Building;
 import com.example.loginsample.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,10 +20,14 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,6 +47,9 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback  {
 
     private GoogleMap mMap;
     private SearchView searchView;
+
+    private List<Building> buildingList; // Declara la lista de edificios
+
 
     public MapaFragment() {
         // Required empty public constructor
@@ -66,11 +76,21 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback  {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
+        // Inicializa la lista de edificios
+        buildingList = new ArrayList<>();
+        buildingList.add(new Building("Catedral", "Santuario principal de la ciudad ocupando el lado norte de la Plaza de Armas", R.drawable.catedral));
+        buildingList.add(new Building("Mansión del Fundador", "Histórica casona colonial de Arequipa, conocida por su arquitectura de sillar y rica herencia cultural y artística.", R.drawable.ingreso));
+        buildingList.add(new Building("Monasterio de Santa Catalina", "Una pequeña ciudadela que ocupa un área de 20 mil metros cuadrados", R.drawable.monasterio));
+        buildingList.add(new Building("Molino de Sabandía", "Construcción colonial donde se molían trigo y maíz", R.drawable.molino));
+        buildingList.add(new Building("Mirador de Yanahuara", "Ofrece una vista panorámica de Arequipa y sus volcanes, rodeado de arcos de sillar con inscripciones poéticas.", R.drawable.yanahuara));
+        buildingList.add(new Building("Plaza de Armas", "Centro histórico de la ciudad rodeado de impresionantes edificios coloniales y la catedral.", R.drawable.plaza_armas));
+        buildingList.add(new Building("Museo Santuarios Andinos", "Hogar de la momia Juanita, una momia Inca congelada encontrada en el volcán Ampato.", R.drawable.santuarios_andinos));
+        buildingList.add(new Building("Iglesia de la Compañía", "Templo jesuita del siglo XVII, con una impresionante fachada barroca tallada en sillar.", R.drawable.compania));
+        buildingList.add(new Building("Cañón del Colca", "Uno de los cañones más profundos del mundo, famoso por sus vistas y observación de cóndores.", R.drawable.colca));
+        buildingList.add(new Building("Baños Termales de Yura", "Aguas termales naturales conocidas por sus propiedades terapéuticas y relajantes.", R.drawable.banos_yura));
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -99,15 +119,40 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback  {
 
         return view;
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Agregar un marcador y mover la cámara
-        LatLng location = new LatLng(-16.40446, -71.52454); // Cambia las coordenadas a las que desees
-        mMap.addMarker(new MarkerOptions().position(location).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+        // Configura el adaptador personalizado de la ventana de información
+        mMap.setInfoWindowAdapter(new ventanaInformacion(getLayoutInflater()));
+
+        // Itera sobre la lista de lugares y agrega un marcador para cada uno
+        for (Building building : buildingList) {
+            try {
+                Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+                List<Address> addresses = geocoder.getFromLocationName(building.getTitle() + " Arequipa", 1);
+
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address address = addresses.get(0);
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+                    // Agrega un marcador en el mapa
+                    mMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(building.getTitle())
+                            .snippet(building.getDescription()));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Centra la cámara en una ubicación general de Arequipa
+        LatLng arequipaCenter = new LatLng(-16.4090474, -71.537451);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(arequipaCenter, 13));
     }
+
 
     private void buscarUbicacion(String location) {
         Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
@@ -126,5 +171,36 @@ public class MapaFragment extends Fragment implements OnMapReadyCallback  {
 
 
     }
+
+    public class ventanaInformacion implements GoogleMap.InfoWindowAdapter {
+
+        private final View mWindow;
+
+        public ventanaInformacion(LayoutInflater inflater) {
+            // Infla el layout personalizado de la ventana de información
+            mWindow = inflater.inflate(R.layout.custom_info_window, null);
+        }
+
+        private void renderWindowText(Marker marker, View view) {
+            TextView title = view.findViewById(R.id.title);
+            TextView description = view.findViewById(R.id.description);
+
+            title.setText(marker.getTitle());
+            description.setText(marker.getSnippet());
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            renderWindowText(marker, mWindow);
+            return mWindow;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            return null;
+        }
+    }
+
+
 
 }
