@@ -3,6 +3,8 @@ package com.example.loginsample;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +30,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         holder.usernameTextView.setText(comment.getUsername());
         holder.textTextView.setText(comment.getText());
 
+        // Aquí asignamos el icono de estrella y la calificación
+        holder.starImageView.setImageResource(R.drawable.fullstar); // Icono de estrella llena
+        holder.ratingTextView.setText("(" + comment.getRating() + ")");
     }
 
     @Override
@@ -38,11 +43,17 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
         TextView usernameTextView;
         TextView textTextView;
+        ImageView starImageView;
+        TextView ratingTextView;
 
-        public CommentViewHolder(@NonNull View itemView) {
+        public CommentViewHolder(View itemView) {
             super(itemView);
             usernameTextView = itemView.findViewById(R.id.comment_username);
             textTextView = itemView.findViewById(R.id.comment_text);
+            starImageView = itemView.findViewById(R.id.comment_star_icon);
+            ratingTextView = itemView.findViewById(R.id.comment_rating);
         }
     }
 }
+
+
