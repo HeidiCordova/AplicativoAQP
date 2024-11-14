@@ -66,11 +66,19 @@ public class DetailFragment extends Fragment {
         TextView averageRateTextView = view.findViewById(R.id.average_rate);
         Button submitCommentButton = view.findViewById(R.id.submit_comment_button);
         commentsRecyclerView = view.findViewById(R.id.comments_recycler_view);
+        Button btnViewMansion = view.findViewById(R.id.btn_view_mansion);
 
         titleTextView.setText(title);
         descriptionTextView.setText(description);
         imageView.setImageResource(imageResId);
-
+        // Añadir listener para redirigir al MansionFragment
+        btnViewMansion.setOnClickListener(v -> {
+            MansionFragment mansionFragment = new MansionFragment();
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView, mansionFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
         // Configuración del RecyclerView para comentarios
         commentList = new ArrayList<>();
         commentAdapter = new CommentAdapter(commentList);
