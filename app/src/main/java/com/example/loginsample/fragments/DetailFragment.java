@@ -62,6 +62,7 @@ public class DetailFragment extends Fragment {
         TextView descriptionTextView = view.findViewById(R.id.description_text_view);
         ImageView imageView = view.findViewById(R.id.image_view);
         EditText commentInput = view.findViewById(R.id.comment_input);
+        RatingBar ratingBar = view.findViewById(R.id.rating_bar);
         RatingBar averageRatingBar = view.findViewById(R.id.average_rating_bar);
         TextView averageRateTextView = view.findViewById(R.id.average_rate);
         Button submitCommentButton = view.findViewById(R.id.submit_comment_button);
@@ -96,27 +97,7 @@ public class DetailFragment extends Fragment {
         // Añadir funcionalidad para agregar un nuevo comentario
         submitCommentButton.setOnClickListener(v -> {
             String commentText = commentInput.getText().toString();
-            int rating = (int) averageRatingBar.getRating();
-
-            if (!commentText.isEmpty() && rating > 0) {
-                Comment newComment = new Comment("Usuario", commentText, rating);
-                commentList.add(newComment);
-                commentAdapter.notifyItemInserted(commentList.size() - 1);
-
-                // Recalcular el promedio después de agregar el comentario
-                float newAverageRating = calculateAndRoundAverageRating(commentList);
-                averageRatingBar.setRating(newAverageRating);
-                averageRateTextView.setText(String.format("%.1f", newAverageRating));
-
-                // Limpiar campos de entrada
-                commentInput.setText("");
-                averageRatingBar.setRating(0);
-            }
-        });
-
-        submitCommentButton.setOnClickListener(v -> {
-            String commentText = commentInput.getText().toString();
-            int rating = (int) averageRatingBar.getRating();
+            int rating = (int) ratingBar.getRating(); // Cambiar a 'ratingBar' en lugar de 'averageRatingBar'
 
             // Asegurarse de que el comentario no esté vacío y tenga una calificación válida
             if (!commentText.isEmpty() && rating > 0) {
@@ -133,17 +114,18 @@ public class DetailFragment extends Fragment {
 
                     // Recalcular el promedio después de agregar el comentario
                     float newAverageRating = calculateAndRoundAverageRating(commentList);
-                    averageRatingBar.setRating(newAverageRating);
+                    averageRatingBar.setRating(newAverageRating);  // Actualizar 'averageRatingBar' con el nuevo promedio
                     averageRateTextView.setText(String.format("%.1f", newAverageRating));
 
                     // Limpiar los campos de entrada
                     commentInput.setText("");
-                    averageRatingBar.setRating(0);
+                    ratingBar.setRating(0); // Restablecer 'ratingBar' para el próximo comentario
                 } else {
                     Toast.makeText(getContext(), "Ya has comentado este lugar.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
         return view;
     }
 
