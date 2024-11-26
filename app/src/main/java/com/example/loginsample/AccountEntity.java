@@ -7,7 +7,20 @@ public class AccountEntity {
     private String phone;
     private String username;
     private String password;
+    private int id;  // Nueva variable para el identificador único
 
+    // Constructor vacío
+    public AccountEntity() {
+    }
+
+    // Constructor con parámetros
+    public AccountEntity(String firstname, String lastname, String email) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+    }
+
+    // Getters y Setters
     public String getFirstname() {
         return firstname;
     }
@@ -54,5 +67,19 @@ public class AccountEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    // Método adicional para obtener el nombre completo
+    public String getNombre() {
+        return firstname + " " + lastname;
+    }
+
+    // Métodos para ID
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.loginsample.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,20 +11,25 @@ import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.loginsample.Comment;
 import com.example.loginsample.CommentAdapter;
 import com.example.loginsample.R;
+import com.example.loginsample.data.AppDatabase;
+import com.example.loginsample.data.dao.ComentarioDAO;
+import com.example.loginsample.data.dao.EdificacionDAO;
+import com.example.loginsample.data.dao.UsuarioDAO;
+import com.example.loginsample.data.entity.Comentario;
+import com.example.loginsample.data.entity.Edificacion;
+import com.example.loginsample.data.entity.Usuario;
+import com.example.loginsample.data.relations.ComentarioConUsuario;
+import com.example.loginsample.utils.UsuarioLogueado;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,129 +41,183 @@ public class CommentsSectionFragment extends Fragment {
     private RatingBar ratingBar;
     private RatingBar averageRatingBar;
     private TextView averageRateTextView;
+    private ComentarioDAO comentarioDAO;
+    private EdificacionDAO edificacionDAO;
+    private UsuarioDAO usuarioDAO;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_comments_section, container, false);
 
+        AppDatabase db = AppDatabase.getInstance(getContext());
+        usuarioDAO = db.usuarioDAO();
+        comentarioDAO = db.comentarioDAO();
+        edificacionDAO = db.edificacionDAO();
+
         // Inicializar componentes
         commentInput = view.findViewById(R.id.comment_input);
         ratingBar = view.findViewById(R.id.rating_bar);
-        averageRatingBar = view.findViewById(R.id.average_rating_bar);  // Inicialización del RatingBar de promedio
-        averageRateTextView = view.findViewById(R.id.average_rate_text_view);  // Inicialización del TextView de promedio
+        averageRatingBar = view.findViewById(R.id.average_rating_bar);
+        averageRateTextView = view.findViewById(R.id.average_rate_text_view);
         Button submitCommentButton = view.findViewById(R.id.submit_comment_button);
         commentsRecyclerView = view.findViewById(R.id.comments_recycler_view);
         Button btnBackToDetail = view.findViewById(R.id.btn_back_to_detail);
 
-        // Configuración del RecyclerView para comentarios
+        // Configuración del RecyclerView
         commentList = new ArrayList<>();
         commentAdapter = new CommentAdapter(commentList);
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         commentsRecyclerView.setAdapter(commentAdapter);
 
-        // Cargar los comentarios desde el archivo
-        loadCommentsFromFile();
+        // Obtener ID de la edificación desde los argumentos
+        Bundle args = getArguments();
+        int edificacionId = args != null ? args.getInt("EdificacionId", -1) : -1;
+        // Registro de depuración
+        Log.d("DEBUG", "EdificacionId recibido: " + edificacionId);
+        if (edificacionId == -1) {
+            Log.e("ERROR", "No se proporcionó un ID de edificación.");
+            return view;
+        }
 
-        // Calcular y mostrar el promedio de calificación después de cargar los comentarios
-        float averageRating = calculateAndRoundAverageRating(commentList);
-        averageRatingBar.setRating(averageRating);  // Actualizar el RatingBar
-        averageRateTextView.setText(String.format("%.1f", averageRating));  // Actualizar el texto
+        // Cargar comentarios desde la base de datos
+        loadCommentsFromDatabase(edificacionId);
+
+        // Calcular y mostrar el promedio de calificación
+        calculateAndDisplayAverageRating(edificacionId);
 
         // Funcionalidad para agregar un nuevo comentario
         submitCommentButton.setOnClickListener(v -> {
             String commentText = commentInput.getText().toString();
             int rating = (int) ratingBar.getRating();
 
-            // Asegurarse de que el comentario no esté vacío y tenga una calificación válida
             if (!commentText.isEmpty() && rating > 0) {
-                String username = "admin"; // Aquí deberías obtener el nombre del usuario logueado
+                String username = UsuarioLogueado.getInstance().getNombreUsuario(); // Obtener el nombre del usuario logueado
+                addCommentToDatabase(username, commentText, rating, edificacionId);
 
-                // Crear el comentario y agregarlo a la lista
-                Comment newComment = new Comment(username, commentText, rating);
-                commentList.add(newComment);
-                commentAdapter.notifyItemInserted(commentList.size() - 1);
-
-                // Guardar el comentario en el archivo
-                saveCommentToFile(username, commentText, rating);
-
-                // Limpiar los campos de entrada
+                // Limpiar campos de entrada
                 commentInput.setText("");
-                ratingBar.setRating(0); // Restablecer la calificación
+                ratingBar.setRating(0);
 
-                // Recalcular el promedio después de agregar el nuevo comentario
-                float updatedAverageRating = calculateAndRoundAverageRating(commentList);
-                averageRatingBar.setRating(updatedAverageRating);
-                averageRateTextView.setText(String.format("%.1f", updatedAverageRating));
+                // Recalcular el promedio
+                calculateAndDisplayAverageRating(edificacionId);
             } else {
                 Toast.makeText(getContext(), "Por favor, ingresa un comentario y calificación válida.", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Regresa al fragmento anterior
-        btnBackToDetail.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
-        });
+        // Regresar al fragmento anterior
+        btnBackToDetail.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
         return view;
     }
+// Métodos relevantes actualizados del fragmento
 
-    // Método para guardar el comentario en el archivo
-    private void saveCommentToFile(String username, String commentText, int rating) {
-        try {
-            // Obtener acceso al archivo comments.txt
-            File file = new File(getContext().getFilesDir(), "comments.txt");
-            FileWriter fileWriter = new FileWriter(file, true);  // 'true' para agregar al final
-            BufferedWriter writer = new BufferedWriter(fileWriter);
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void addCommentToDatabase(String username, String commentText, int rating, int edificacionId) {
+        new Thread(() -> {
+            Comentario comentario = new Comentario();
+            comentario.ComTex = commentText;
+            comentario.ComCal = rating;
+            comentario.UsId = UsuarioLogueado.getInstance().getIdUsuario(); // ID del usuario logueado
+            comentario.EdId = edificacionId; // ID de la edificación
+            comentario.ComFec = java.time.LocalDate.now().toString();
 
-            // Escribir el comentario en el archivo, separado por ";"
-            writer.write(username + ";" + commentText + ";" + rating);
-            writer.newLine();
+            try {
+                // Validar claves foráneas
+                Usuario usuario = usuarioDAO.getUsuarioById(comentario.UsId);
+                Edificacion edificacion = edificacionDAO.getEdificacionById(edificacionId);
 
-            writer.close();
-        } catch (IOException e) {
-            Log.e("DetailFragment", "Error al guardar el comentario", e);
-            Toast.makeText(getContext(), "Error al guardar el comentario", Toast.LENGTH_SHORT).show();
-        }
-    }
+                if (usuario == null || edificacion == null) {
+                    String errorMessage = (usuario == null)
+                            ? "Usuario no válido."
+                            : "Edificación no válida.";
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                    );
+                    return;
+                }
 
-    private void loadCommentsFromFile() {
-        try {
-            // Acceder al archivo en 'assets' usando getAssets()
-            InputStream inputStream = getContext().getAssets().open("comments.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Ahora usamos ";" como delimitador
-                String[] parts = line.split(";");
-                if (parts.length == 3) {
-                    String username = parts[0].trim();  // Nombre de usuario
-                    String text = parts[1].trim();      // Texto del comentario
-                    int rating = Integer.parseInt(parts[2].trim());  // Calificación
+                comentarioDAO.insertComentario(comentario);
 
-                    // Crear el comentario y agregarlo a la lista
-                    Comment comment = new Comment(username, text, rating);
-                    commentList.add(comment);
+                // Actualizar la UI
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Comment newComment = new Comment(username, commentText, rating);
+                        commentList.add(newComment);
+                        commentAdapter.notifyItemInserted(commentList.size() - 1);
+                    });
+                }
+            } catch (Exception e) {
+                Log.e("ERROR", "Error al insertar comentario: " + e.getMessage(), e);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Error al guardar el comentario.", Toast.LENGTH_SHORT).show()
+                    );
                 }
             }
-            commentAdapter.notifyDataSetChanged();  // Actualiza el RecyclerView
-            reader.close();  // Cierra el BufferedReader
-        } catch (IOException e) {
-            Log.e("DetailFragment", "Error al leer el archivo de comentarios", e);
-            Toast.makeText(getContext(), "Error al cargar comentarios", Toast.LENGTH_SHORT).show();
-        }
+        }).start();
     }
 
-    private float calculateAndRoundAverageRating(List<Comment> comments) {
-        if (comments.isEmpty()) {
-            return 0f;  // Si no hay comentarios, el promedio es 0
+    private void loadCommentsFromDatabase(int edificacionId) {
+        if (edificacionId == -1) {
+            Log.e("ERROR", "ID de edificación inválido al cargar comentarios.");
+            return;
         }
 
-        int totalRating = 0;
-        for (Comment comment : comments) {
-            totalRating += comment.getRating();
+        new Thread(() -> {
+            try {
+                List<ComentarioConUsuario> comentariosConUsuarios = comentarioDAO.getComentariosConUsuarios(edificacionId);
+                List<Comment> newComments = new ArrayList<>();
+
+                for (ComentarioConUsuario comentarioConUsuario : comentariosConUsuarios) {
+                    Comment comment = new Comment(
+                            comentarioConUsuario.usuario.getNombre(),
+                            comentarioConUsuario.comentario.getComTex(),
+                            comentarioConUsuario.comentario.getComCal()
+                    );
+                    newComments.add(comment);
+                }
+
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        commentList.clear();
+                        commentList.addAll(newComments);
+                        commentAdapter.notifyDataSetChanged();
+                    });
+                }
+            } catch (Exception e) {
+                Log.e("ERROR", "Error al cargar comentarios: " + e.getMessage(), e);
+            }
+        }).start();
+    }
+
+    private void calculateAndDisplayAverageRating(int edificacionId) {
+        if (edificacionId == -1) {
+            Log.e("ERROR", "ID de edificación inválido al calcular el promedio de calificación.");
+            return;
         }
 
-        float average = (float) totalRating / comments.size();  // Calcula el promedio
-        return Math.round(average * 2) / 2.0f;  // Redondear a 0.5 más cercano
+        new Thread(() -> {
+            try {
+                List<Comentario> comentarios = comentarioDAO.getComentariosByEdificacion(edificacionId);
+                int totalRating = 0;
+
+                for (Comentario comentario : comentarios) {
+                    totalRating += comentario.ComCal;
+                }
+
+                float averageRating = comentarios.isEmpty() ? 0f : (float) totalRating / comentarios.size();
+
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        averageRatingBar.setRating(averageRating);
+                        averageRateTextView.setText(String.format("%.1f", averageRating));
+                    });
+                }
+            } catch (Exception e) {
+                Log.e("ERROR", "Error al calcular promedio: " + e.getMessage(), e);
+            }
+        }).start();
     }
 }
