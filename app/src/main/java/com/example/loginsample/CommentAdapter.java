@@ -3,57 +3,59 @@ package com.example.loginsample;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.loginsample.R;
+import com.example.loginsample.data.entity.Comentario;
+
 import java.util.List;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
-    private List<Comment> commentList;
 
-    public CommentAdapter(List<Comment> commentList) {
-        this.commentList = commentList;
+    private List<Comentario> comentariosList;
+
+    public CommentAdapter(List<Comentario> comentariosList) {
+        this.comentariosList = comentariosList;
     }
 
-    @NonNull
     @Override
-    public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CommentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // Infla el layout para cada item de comentario
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_item, parent, false);
         return new CommentViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
-        Comment comment = commentList.get(position);
-        holder.usernameTextView.setText(comment.getUsername());
-        holder.textTextView.setText(comment.getText());
-
-        // Aquí asignamos el icono de estrella y la calificación
-        holder.starImageView.setImageResource(R.drawable.fullstar); // Icono de estrella llena
-        holder.ratingTextView.setText("(" + comment.getRating() + ")");
+    public void onBindViewHolder(CommentViewHolder holder, int position) {
+        // Asigna los datos del comentario a las vistas
+        Comentario comentario = comentariosList.get(position);
+        holder.bind(comentario);
     }
 
     @Override
     public int getItemCount() {
-        return commentList.size();
+        return comentariosList.size();
     }
 
+    // ViewHolder para cada comentario
     public static class CommentViewHolder extends RecyclerView.ViewHolder {
-        TextView usernameTextView;
-        TextView textTextView;
-        ImageView starImageView;
-        TextView ratingTextView;
+        TextView comentarioTextView;
+        TextView comentarioFechaTextView;
 
         public CommentViewHolder(View itemView) {
             super(itemView);
-            usernameTextView = itemView.findViewById(R.id.comment_username);
-            textTextView = itemView.findViewById(R.id.comment_text);
-            starImageView = itemView.findViewById(R.id.comment_star_icon);
-            ratingTextView = itemView.findViewById(R.id.comment_rating);
+            comentarioTextView = itemView.findViewById(R.id.comment_text);
+            comentarioFechaTextView = itemView.findViewById(R.id.comment_date);
+        }
+
+        public void bind(Comentario comentario) {
+            // Establece el texto del comentario
+            comentarioTextView.setText(comentario.ComTex);
+            // Establece la fecha del comentario
+            comentarioFechaTextView.setText(comentario.ComFec);
         }
     }
 }
-
-

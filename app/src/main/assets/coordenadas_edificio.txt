@@ -1,0 +1,90 @@
+Punto 48 42
+Punto 249 45
+Punto 252 135
+Punto 48 135
+Punto 354 45
+Punto 354 141
+Punto 432 45
+Punto 432 141
+Punto 144 141
+Punto 141 219
+Punto 42 225
+Punto 144 315
+Punto 39 321
+Punto 141 402
+Punto 39 405
+Punto 465 42
+Punto 567 45
+Punto 570 120
+Punto 468 114
+Punto 570 78
+Punto 648 84
+Punto 648 141
+Punto 618 150
+Punto 615 168
+Punto 564 165
+Punto 726 87
+Punto 723 147
+Punto 720 249
+Punto 618 252
+Punto 552 207
+Punto 453 210
+Punto 714 369
+Punto 627 372
+Punto 552 252
+Punto 540 357
+Punto 444 360
+Punto 711 495
+Punto 624 495
+Punto 621 426
+Punto 552 423
+Punto 444 423
+Punto 558 498
+Punto 462 495
+Punto 426 495
+Punto 426 594
+Punto 363 597
+Punto 366 432
+Punto 135 432
+Punto 114 471
+Punto 6 468
+Punto 9 417
+Punto 324 429
+Punto 321 525
+Punto 111 522
+Punto 105 642
+Punto 6 639
+Punto 105 801
+Punto 3 801
+Punto 114 441
+
+
+
+
+
+Cuarto 0 1 2 3
+Cuarto 1 4 5 2
+Cuarto 4 6 7 5
+Cuarto 3 8 9 10
+Cuarto 10 9 11 12
+Cuarto 12 11 13 14
+Cuarto 15 16 17 18
+Cuarto 19 20 21 22 23 24 17
+Cuarto 20 25 26 21
+Cuarto 22 26 27 28
+Cuarto 18 17 29 30
+Cuarto 24 23 28 33 29
+Cuarto 30 29 33 34 35
+Cuarto 33 28 32 34
+Cuarto 28 27 31 32
+Cuarto 35 34 39 40
+Cuarto 34 32 38 39
+Cuarto 32 31 36 37 38
+Cuarto 38 37 41 42 40 39
+Cuarto 46 40 42 43 44 45
+Cuarto 13 47 58 48 49 50 14
+Cuarto 58 47 51 52 53 48
+Cuarto 49 48 53 54 55
+Cuarto 55 54 56 57
+
+
