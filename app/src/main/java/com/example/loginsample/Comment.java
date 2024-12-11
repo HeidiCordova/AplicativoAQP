@@ -24,5 +24,9 @@ public class Comment {
     public int getRating() {
         return rating;
     }
+
+    public String getCommentText() {
+        return text;
+    }
 }
 

@@ -21,7 +21,7 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/btn_back_to_detail"
+                android:id="@+id/button_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Regresar"
@@ -29,7 +29,7 @@
                 android:drawableLeft="@drawable/left_arrow"
                 android:paddingStart="0dp"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -46,7 +46,7 @@
                 android:paddingBottom="10dp">
 
                 <TextView
-                    android:id="@+id/average_rate_text_view"
+                    android:id="@+id/textView_average_rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0,0"
@@ -56,7 +56,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <RatingBar
-                    android:id="@+id/average_rating_bar"
+                    android:id="@+id/ratingBar_average"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -72,7 +72,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/average_rate_text_view" />
+                    app:layout_constraintTop_toBottomOf="@+id/textView_average_rating" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -85,24 +85,23 @@
                 android:layout_marginTop="16dp" />
 
             <EditText
-                android:id="@+id/comment_input"
+                android:id="@+id/editText_comment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:hint="¿Que te parecio este lugar?" />
+                android:hint="¿Qué te pareció este lugar?" />
 
             <RatingBar
-                android:id="@+id/rating_bar"
+                android:id="@+id/ratingBar_input"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:numStars="5"
                 android:stepSize="1.0"
                 android:progressTint="#EFE40D"
-                android:secondaryProgressTint="#EFE40D"
-                />
+                android:secondaryProgressTint="#EFE40D" />
 
             <Button
-                android:id="@+id/submit_comment_button"
+                android:id="@+id/button_add_comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Enviar" />
@@ -115,12 +114,11 @@
                 android:textStyle="bold"
                 android:layout_marginTop="16dp" />
 
-            <!-- RecyclerView para la lista de comentarios -->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/comments_recycler_view"
+                android:id="@+id/recyclerView_comments"
                 android:layout_width="match_parent"
                 android:layout_height="400dp"
-                android:padding="10dp"/>
+                android:padding="10dp" />
 
         </LinearLayout>
     </ScrollView>

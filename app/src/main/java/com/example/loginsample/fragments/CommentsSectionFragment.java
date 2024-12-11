@@ -1,7 +1,7 @@
 package com.example.loginsample.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +10,12 @@ import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.loginsample.Comment;
 import com.example.loginsample.CommentAdapter;
 import com.example.loginsample.R;
@@ -20,144 +23,123 @@ import com.example.loginsample.R;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 
 public class CommentsSectionFragment extends Fragment {
-    private RecyclerView commentsRecyclerView;
-    private CommentAdapter commentAdapter;
-    private List<Comment> commentList;
-    private EditText commentInput;
-    private RatingBar ratingBar;
-    private RatingBar averageRatingBar;
-    private TextView averageRateTextView;
 
+    private ArrayList<Comment> commentList;
+    private CommentAdapter commentAdapter;
+    private RecyclerView recyclerView;
+    private RatingBar ratingBarInput;
+    private EditText commentInput;
+    private TextView averageRatingText;
+    private RatingBar averageRatingBar;
+    private File commentsFile;
+
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_comments_section, container, false);
 
-        // Inicializar componentes
-        commentInput = view.findViewById(R.id.comment_input);
-        ratingBar = view.findViewById(R.id.rating_bar);
-        averageRatingBar = view.findViewById(R.id.average_rating_bar);  // Inicialización del RatingBar de promedio
-        averageRateTextView = view.findViewById(R.id.average_rate_text_view);  // Inicialización del TextView de promedio
-        Button submitCommentButton = view.findViewById(R.id.submit_comment_button);
-        commentsRecyclerView = view.findViewById(R.id.comments_recycler_view);
-        Button btnBackToDetail = view.findViewById(R.id.btn_back_to_detail);
+        // Inicializar elementos de la interfaz de usuario
+        recyclerView = view.findViewById(R.id.recyclerView_comments);
+        ratingBarInput = view.findViewById(R.id.ratingBar_input);
+        commentInput = view.findViewById(R.id.editText_comment);
+        Button addCommentButton = view.findViewById(R.id.button_add_comment);
+        averageRatingText = view.findViewById(R.id.textView_average_rating);
+        averageRatingBar = view.findViewById(R.id.ratingBar_average);
+        Button backButton = view.findViewById(R.id.button_back);
 
-        // Configuración del RecyclerView para comentarios
+        // Inicializar RecyclerView
         commentList = new ArrayList<>();
         commentAdapter = new CommentAdapter(commentList);
-        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        commentsRecyclerView.setAdapter(commentAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(commentAdapter);
 
-        // Cargar los comentarios desde el archivo
+        // Configurar archivo de comentarios
+        commentsFile = new File(getContext().getFilesDir(), "comments.txt");
         loadCommentsFromFile();
+        updateAverageRating();
 
-        // Calcular y mostrar el promedio de calificación después de cargar los comentarios
-        float averageRating = calculateAndRoundAverageRating(commentList);
-        averageRatingBar.setRating(averageRating);  // Actualizar el RatingBar
-        averageRateTextView.setText(String.format("%.1f", averageRating));  // Actualizar el texto
+        // Funcionalidad del botón para agregar comentarios
+        addCommentButton.setOnClickListener(v -> addComment());
 
-        // Funcionalidad para agregar un nuevo comentario
-        submitCommentButton.setOnClickListener(v -> {
-            String commentText = commentInput.getText().toString();
-            int rating = (int) ratingBar.getRating();
-
-            // Asegurarse de que el comentario no esté vacío y tenga una calificación válida
-            if (!commentText.isEmpty() && rating > 0) {
-                String username = "admin"; // Aquí deberías obtener el nombre del usuario logueado
-
-                // Crear el comentario y agregarlo a la lista
-                Comment newComment = new Comment(username, commentText, rating);
-                commentList.add(newComment);
-                commentAdapter.notifyItemInserted(commentList.size() - 1);
-
-                // Guardar el comentario en el archivo
-                saveCommentToFile(username, commentText, rating);
-
-                // Limpiar los campos de entrada
-                commentInput.setText("");
-                ratingBar.setRating(0); // Restablecer la calificación
-
-                // Recalcular el promedio después de agregar el nuevo comentario
-                float updatedAverageRating = calculateAndRoundAverageRating(commentList);
-                averageRatingBar.setRating(updatedAverageRating);
-                averageRateTextView.setText(String.format("%.1f", updatedAverageRating));
-            } else {
-                Toast.makeText(getContext(), "Por favor, ingresa un comentario y calificación válida.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Regresa al fragmento anterior
-        btnBackToDetail.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
-        });
+        // Funcionalidad del botón de retroceso
+        backButton.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
         return view;
     }
 
-    // Método para guardar el comentario en el archivo
-    private void saveCommentToFile(String username, String commentText, int rating) {
-        try {
-            // Obtener acceso al archivo comments.txt
-            File file = new File(getContext().getFilesDir(), "comments.txt");
-            FileWriter fileWriter = new FileWriter(file, true);  // 'true' para agregar al final
-            BufferedWriter writer = new BufferedWriter(fileWriter);
-
-            // Escribir el comentario en el archivo, separado por ";"
-            writer.write(username + ";" + commentText + ";" + rating);
-            writer.newLine();
-
-            writer.close();
-        } catch (IOException e) {
-            Log.e("DetailFragment", "Error al guardar el comentario", e);
-            Toast.makeText(getContext(), "Error al guardar el comentario", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void loadCommentsFromFile() {
-        try {
-            // Acceder al archivo en 'assets' usando getAssets()
-            InputStream inputStream = getContext().getAssets().open("comments.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Ahora usamos ";" como delimitador
-                String[] parts = line.split(";");
-                if (parts.length == 3) {
-                    String username = parts[0].trim();  // Nombre de usuario
-                    String text = parts[1].trim();      // Texto del comentario
-                    int rating = Integer.parseInt(parts[2].trim());  // Calificación
+        if (!commentsFile.exists()) {
+            return;
+        }
 
-                    // Crear el comentario y agregarlo a la lista
-                    Comment comment = new Comment(username, text, rating);
-                    commentList.add(comment);
+        try (BufferedReader reader = new BufferedReader(new FileReader(commentsFile))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] partes = linea.split(";");
+                if (partes.length == 3) {
+                    String nombreUsuario = partes[0];
+                    String textoComentario = partes[1];
+                    float calificacion = Float.parseFloat(partes[2]);
+                    commentList.add(new Comment(nombreUsuario, textoComentario, (int) calificacion));
                 }
             }
-            commentAdapter.notifyDataSetChanged();  // Actualiza el RecyclerView
-            reader.close();  // Cierra el BufferedReader
         } catch (IOException e) {
-            Log.e("DetailFragment", "Error al leer el archivo de comentarios", e);
+            e.printStackTrace();
             Toast.makeText(getContext(), "Error al cargar comentarios", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private float calculateAndRoundAverageRating(List<Comment> comments) {
-        if (comments.isEmpty()) {
-            return 0f;  // Si no hay comentarios, el promedio es 0
+    private void saveCommentToFile(Comment comment) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(commentsFile, true))) {
+            writer.write(comment.getUsername() + ";" + comment.getCommentText() + ";" + comment.getRating() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error al guardar comentario", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void addComment() {
+        String textoComentario = commentInput.getText().toString().trim();
+        float calificacion = ratingBarInput.getRating();
+
+        if (TextUtils.isEmpty(textoComentario) || calificacion == 0) {
+            Toast.makeText(getContext(), "Por favor, ingresa un comentario y una calificación", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        int totalRating = 0;
-        for (Comment comment : comments) {
-            totalRating += comment.getRating();
+        Comment nuevoComentario = new Comment("Usuario", textoComentario, (int) calificacion);
+        commentList.add(nuevoComentario);
+        commentAdapter.notifyItemInserted(commentList.size() - 1);
+        saveCommentToFile(nuevoComentario);
+        updateAverageRating();
+
+        // Limpiar entradas
+        commentInput.setText("");
+        ratingBarInput.setRating(0);
+
+        Toast.makeText(getContext(), "Comentario agregado", Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateAverageRating() {
+        if (commentList.isEmpty()) {
+            averageRatingText.setText("Aún no hay calificaciones");
+            averageRatingBar.setRating(0);
+            return;
         }
 
-        float average = (float) totalRating / comments.size();  // Calcula el promedio
-        return Math.round(average * 2) / 2.0f;  // Redondear a 0.5 más cercano
+        float totalCalificaciones = 0;
+        for (Comment comentario : commentList) {
+            totalCalificaciones += comentario.getRating();
+        }
+
+        float promedio = totalCalificaciones / commentList.size();
+        averageRatingText.setText(String.format("Calificación promedio: %.1f", promedio));
+        averageRatingBar.setRating(promedio);
     }
 }
