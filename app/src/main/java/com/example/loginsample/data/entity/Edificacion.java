@@ -12,14 +12,24 @@ public class Edificacion {
     private int EdIma;     // ID de la imagen
     private double EdLat;  // Latitud de la edificación
     private double EdLong; // Longitud de la edificación
-
+    private int EdAuId;
     // Constructor, getters y setters
-    public Edificacion(String EdNom, String EdDes, int EdIma, double EdLat, double EdLong) {
+    public Edificacion(String EdNom, String EdDes, int EdIma, double EdLat, double EdLong, int EdAuId) {
         this.EdNom = EdNom;
         this.EdDes = EdDes;
         this.EdIma = EdIma;
         this.EdLat = EdLat;
         this.EdLong = EdLong;
+        this.EdAuId = EdAuId;
+    }
+    // Getters y setters
+    public void setEdAuId(int EdAuId) {
+        this.EdAuId = EdAuId;
+    }
+
+    // Getters y setters
+    public int getEdAuId() {
+        return EdAuId;
     }
 
     // Getters y setters
