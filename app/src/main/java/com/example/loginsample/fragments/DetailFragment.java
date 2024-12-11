@@ -20,8 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import androidx.room.Room;
 
+import com.example.loginsample.Comment;
 import com.example.loginsample.CommentAdapter;
 import com.example.loginsample.R;
+import com.example.loginsample.data.mapper.ComentarioToCommentMapper;
 import com.example.loginsample.data.AppDatabase;
 import com.example.loginsample.data.entity.Comentario;
 import com.example.loginsample.data.entity.Edificacion;
@@ -194,27 +196,25 @@ public class DetailFragment extends Fragment {
 
 
     private void loadComments() {
-        // Usar Executor para ejecutar la operación en segundo plano
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                // Obtener comentarios en segundo plano
-                List<Comentario> comentarios = AppDatabase.getDatabase(getContext()).comentarioDAO().getComentariosByEdificacion(buildingId);
+        executor.execute(() -> {
+            // Obtener comentarios desde la base de datos
+            List<Comentario> listaComentario = AppDatabase.getDatabase(getContext())
+                    .comentarioDAO()
+                    .getComentariosByEdificacion(buildingId);
 
-                // Actualizar la UI en el hilo principal
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        commentList.clear();
-                        commentList.addAll(comentarios);
-                        CommentAdapter adapter = new CommentAdapter(commentList);
-                        commentsRecyclerView.setAdapter(adapter);
-                    }
-                });
-            }
+            // Convertir Comentario a Comment
+            List<Comment> comentarios = ComentarioToCommentMapper.convertirComentarios(listaComentario);
+
+            // Actualizar la UI en el hilo principal
+            getActivity().runOnUiThread(() -> {
+                CommentAdapter adapter = new CommentAdapter(comentarios);
+                commentsRecyclerView.setAdapter(adapter);
+            });
         });
     }
+
+
 
 
 }

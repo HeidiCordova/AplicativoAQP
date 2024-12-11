@@ -5,20 +5,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.loginsample.R;
-import com.example.loginsample.data.entity.Comentario;
-
+import java.util.Collections;
 import java.util.List;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
-    private List<Comentario> comentariosList;
+    private List<Comment> comentariosList;
 
-    public CommentAdapter(List<Comentario> comentariosList) {
-        this.comentariosList = comentariosList;
+    public CommentAdapter(List<Comment> comentariosList) {
+        this.comentariosList = Collections.unmodifiableList(comentariosList);
     }
 
     @Override
@@ -31,7 +28,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     @Override
     public void onBindViewHolder(CommentViewHolder holder, int position) {
         // Asigna los datos del comentario a las vistas
-        Comentario comentario = comentariosList.get(position);
+        Comment comentario = comentariosList.get(position);
         holder.bind(comentario);
     }
 
@@ -51,11 +48,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             comentarioFechaTextView = itemView.findViewById(R.id.comment_date);
         }
 
-        public void bind(Comentario comentario) {
+        public void bind(Comment comentario) {
             // Establece el texto del comentario
-            comentarioTextView.setText(comentario.ComTex);
-            // Establece la fecha del comentario
-            comentarioFechaTextView.setText(comentario.ComFec);
+            comentarioTextView.setText(comentario.getText());
+            // Establece la fecha del comentario (aquí está representada como un entero, ajusta según tus datos)
+            comentarioFechaTextView.setText(String.valueOf(comentario.getRating()));
         }
     }
 }
+

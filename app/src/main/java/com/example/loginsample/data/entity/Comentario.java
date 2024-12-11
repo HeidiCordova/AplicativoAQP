@@ -6,6 +6,11 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import com.example.loginsample.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity(
         tableName = "comentarios",
         foreignKeys = {
@@ -34,8 +39,7 @@ public class Comentario {
     @ColumnInfo(name = "ComFec")
     public String ComFec; // Puede ser String en formato ISO 8601
 
-    // Getters y Setters
-
+    // Getters y setters
     public int getComId() {
         return ComId;
     }
@@ -84,3 +88,4 @@ public class Comentario {
         this.ComFec = comFec;
     }
 }
+

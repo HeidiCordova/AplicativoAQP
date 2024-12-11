@@ -1,6 +1,8 @@
 package com.example.loginsample;
 
 public class Comment {
+    public int ComTex;
+    public int ComFec;
     private String username;
     private String text;
     private int rating;
