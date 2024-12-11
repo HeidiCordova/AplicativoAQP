@@ -66,52 +66,52 @@ public class SplashActivity extends AppCompatActivity {
         edificaciones.add(new Edificacion("Catedral",
                 "Santuario principal de la ciudad ocupando el lado norte de la Plaza de Armas",
                 R.drawable.catedral,
-                -16.3986, -71.5350));  // Latitud y longitud
+                -16.3986, -71.5350,1));  // Latitud y longitud
 
         edificaciones.add(new Edificacion("Mansión del Fundador",
                 "Histórica casona colonial de Arequipa, conocida por su arquitectura de sillar y rica herencia cultural y artística.",
                 R.drawable.ingreso,
-                -16.3980, -71.5370));
+                -16.3980, -71.5370,2));
 
         edificaciones.add(new Edificacion("Monasterio de Santa Catalina",
                 "Una pequeña ciudadela que ocupa un área de 20 mil metros cuadrados",
                 R.drawable.monasterio,
-                -16.3984, -71.5380));
+                -16.3984, -71.5380,3));
 
         edificaciones.add(new Edificacion("Molino de Sabandía",
                 "Construcción colonial donde se molían trigo y maíz",
                 R.drawable.molino,
-                -16.3120, -71.6720));
+                -16.3120, -71.6720,4));
 
         edificaciones.add(new Edificacion("Mirador de Yanahuara",
                 "Ofrece una vista panorámica de Arequipa y sus volcanes, rodeado de arcos de sillar con inscripciones poéticas.",
                 R.drawable.yanahuara,
-                -16.3985, -71.5355));
+                -16.3985, -71.5355,5));
 
         edificaciones.add(new Edificacion("Plaza de Armas",
                 "Centro histórico de la ciudad rodeado de impresionantes edificios coloniales y la catedral.",
                 R.drawable.plaza_armas,
-                -16.3986, -71.5350));
+                -16.3986, -71.5350,6));
 
         edificaciones.add(new Edificacion("Museo Santuarios Andinos",
                 "Hogar de la momia Juanita, una momia Inca congelada encontrada en el volcán Ampato.",
                 R.drawable.santuarios_andinos,
-                -16.4094, -71.5322));
+                -16.4094, -71.5322,7));
 
         edificaciones.add(new Edificacion("Iglesia de la Compañía",
                 "Templo jesuita del siglo XVII, con una impresionante fachada barroca tallada en sillar.",
                 R.drawable.compania,
-                -16.3982, -71.5376));
+                -16.3982, -71.5376,8));
 
         edificaciones.add(new Edificacion("Cañón del Colca",
                 "Uno de los cañones más profundos del mundo, famoso por sus vistas y observación de cóndores.",
                 R.drawable.colca,
-                -15.6134, -71.8586));
+                -15.6134, -71.8586,9));
 
         edificaciones.add(new Edificacion("Baños Termales de Yura",
                 "Aguas termales naturales conocidas por sus propiedades terapéuticas y relajantes.",
                 R.drawable.banos_yura,
-                -16.2735, -71.5327));
+                -16.2735, -71.5327,10));
 
         // Insertar en la base de datos en un hilo en segundo plano
         new Thread(new Runnable() {
